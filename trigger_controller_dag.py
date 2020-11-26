@@ -34,7 +34,7 @@ dag = DAG(
 )
 
 trigger = TriggerDagRunOperator(
-    task_id="trigger_dagrun",
+    task_id="test_trigger_dagrun",
     trigger_dag_id="trigger_target_dag",  # Ensure this equals the dag_id of the DAG to trigger
     conf={"message": "Hello World"},
     dag=dag,
