@@ -44,6 +44,12 @@ def run_this_func(**context):
     """
     print("Remotely received value of {} for key=message".format(context["dag_run"].conf["message"]))
 
+def trigger_dagrun(ds, **kwargs):
+    pprint(kwargs)
+    ti = context['task_instance']
+    exec_date = context['execution_date']
+    print(ds)
+    return 'Whatever you return gets printed in the logs'
 
 run_this = PythonOperator(task_id="run_this", python_callable=run_this_func, dag=dag)
 
