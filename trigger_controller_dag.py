@@ -25,6 +25,13 @@ from airflow import DAG
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
 
+def trigger_dagrun(ds, **kwargs):
+    pprint(kwargs)
+    ti = context['task_instance']
+    exec_date = context['execution_date']
+    print(ds)
+    return 'Whatever you return gets printed in the logs'
+
 dag = DAG(
     dag_id="trigger_controller_dag",
     default_args={"owner": "airflow"},
