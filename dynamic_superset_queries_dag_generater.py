@@ -12,12 +12,24 @@ default_args = {
     "provide_context": True
 }
 
-with DAG('dynamic_superset_queries_{{ dag_run.conf["table_name"]}}', default_args=default_args,
-         start_date=days_ago(1), schedule_interval=timedelta(seconds=60), catchup=False, ) as sensor_dag:
-    run_this = PythonOperator(
-        task_id='dynamic_superset_queries_{{ dag_run.conf["table_name"]}}',
-        python_callable=insert_or_update_table,
-        dag=dag
+
+def generate_dags_for_queries(**context):
+    table_name = format(context["dag_run"].conf["table_name"])
+    dag_name = 'dynamic_superset_queries_dag_generator_{}'.table_name
+    dag = DAG(
+        dag_name,
+        schedule_interval=timedelta(seconds=60),
+        default_args=default_args
+    )
+    dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table, dag=dag)
+    return dag
+
+
+with DAG('dynamic_superset_queries_dags', default_args=default_args,
+         start_date=days_ago(1), schedule_interval='None', catchup=False, ) as superset_queries_dags:
+    process_creator_task = PythonOperator(
+        task_id="process_creator",
+        python_callable=generate_dags_for_queries,
     )
 
 
