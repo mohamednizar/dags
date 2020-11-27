@@ -1,48 +1,28 @@
-from datetime import datetime
-
-from airflow import DAG
-from airflow.models import Variable
-
+from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.models import DAG
+from datetime import datetime
+from airflow.operators.mysql_operator import MysqlOperator
+from airflow.hooks.mysql_hook import MysqlHook
+import os
 
+dag_params = {
+    'owner': 'airflow',
+    'dag_id': 'superset_queries',
+    'start_date':datetime(2020, 4, 20),
+    'schedule_interval': timedelta(seconds=60)
+}
 
-def create_dag(dag_id,
-               schedule,
-               dag_number,
-               default_args):
+with DAG(**dag_params) as dag:
+    dag_id= dag_id . '_table{}_'.os.path.splitext(context['dag_run'].conf['extra_json.table_name']),
+    dag_name=dag_name,
+    src = MysqlHook(mysql_conn_id='openemis')
+    dest = MysqlsHook(mysql_conn_id='analytics')
+    src_conn = src.get_conn()
+    cursor = src_conn.cursor()
+    dest_conn = dest.get_conn()
+    dest_cursor = dest_conn.cursor()
+    cursor.execute(os.path.splitext(context['dag_run'].conf['sql']))
+    dest.truncate(table=os.path.splitext(context['dag_run'].conf['extra_json.table_name']))
+    dest.insert_rows(table=os.path.splitext(context['dag_run'].conf['extra_json.table_name']), rows=cursor)
 
-    def hello_world_py(*args):
-        print('Hello World')
-        print('This is DAG: {}'.format(str(dag_number)))
-
-    dag = DAG(dag_id,
-              schedule_interval=schedule,
-              default_args=default_args)
-
-    with dag:
-        t1 = PythonOperator(
-            task_id='hello_world',
-            python_callable=hello_world_py,
-            dag_number=dag_number)
-
-    return dag
-
-
-number_of_dags = Variable.get('dag_number', default_var=10)
-number_of_dags = int(number_of_dags)
-
-for n in range(1, number_of_dags):
-    dag_id = 'hello_world_{}'.format(str(n))
-
-    default_args = {'owner': 'airflow',
-                    'start_date': datetime(2018, 1, 1)
-                    }
-
-    schedule = '@daily'
-
-    dag_number = n
-
-    globals()[dag_id] = create_dag(dag_id,
-                                  schedule,
-                                  dag_number,
-                                  default_args)
