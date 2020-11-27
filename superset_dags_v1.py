@@ -13,7 +13,7 @@ dag_params = {
 }
 
 with DAG(**dag_params) as dag:
-    dag_name=dag_name,
+    dag_name='superset_queries',
     src = MysqlHook(mysql_conn_id='openemis')
     dest = MysqlsHook(mysql_conn_id='analytics')
     src_conn = src.get_conn()
