@@ -17,7 +17,7 @@ dag = DAG(
 
 def create_or_update_table(**context):
     """
-     Print the payload "message" passed to the DagRun conf attribute.
+    access the  payload params passed to the DagRun conf attribute.
     :param context: The execution context
     :type context: dict
     """
@@ -27,16 +27,15 @@ def create_or_update_table(**context):
         table_name = format(context["dag_run"].conf["table_name"])
         logging.info('connecting to source')
         src = MySqlHook(mysql_conn_id='openemis')
-        truncate_query = "TRUNCATE tabel"
         logging.info('connecting to destination')
-        print("Remotely received value of {} for key=sql".format(context["dag_run"].conf["sql"]))
-        print("Remotely received value of {} for key=table_name".format(context["dag_run"].conf["table_name"]))
+        print("Remotely received value of {} for key=sql".sql)
+        print("Remotely received value of {} for key=table_name".table_name)
         dest = MySqlHook(mysql_conn_id='analytics')
         src_conn = src.get_conn()
         cursor = src_conn.cursor()
         dest_conn = dest.get_conn()
         cursor.execute(sql)
-        dest.insert_rows(table=table_name, rows=cursor)
+        dest.insert_rows(table=table_name, rows=cursor, replace=True)
     except Exception as e3:
         logging.error('Dag failed , please refer the logs more details')
         logging.exception(context)
@@ -44,11 +43,3 @@ def create_or_update_table(**context):
 
 
 run_this = PythonOperator(task_id="run_this", python_callable=create_or_update_table, dag=dag)
-
-bash_task = BashOperator(
-    task_id="bash_task",
-    bash_command='echo "start importing data: $table_name"',
-    env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}',
-         'table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
-    dag=dag,
-)
