@@ -13,8 +13,8 @@ dag_params = {
     'schedule_interval': timedelta(seconds=60)
 }
 
-with DAG(**dag_params) as dag:
 #     dag_id= dag_id . '_table{}'.(os.path.splitext(context['dag_run'].conf['extra_json.table_name'])),
+with DAG(**dag_params) as dag:
     dag_name=dag_name,
     src = MysqlHook(mysql_conn_id='openemis')
     dest = MysqlsHook(mysql_conn_id='analytics')
