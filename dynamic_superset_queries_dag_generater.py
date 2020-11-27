@@ -25,7 +25,7 @@ def generate_dags_for_queries(**context):
     return dag
 
 
-with DAG('dynamic_superset_queries_dags', default_args=default_args,
+with DAG('dynamic_superset_queries_dag_generater', default_args=default_args,
          start_date=days_ago(1), schedule_interval='None', catchup=False, ) as superset_queries_dags:
     process_creator_task = PythonOperator(
         task_id="process_creator",
