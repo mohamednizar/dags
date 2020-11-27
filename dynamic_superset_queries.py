@@ -30,7 +30,7 @@ def generate_dags_for_queries(**context):
             dag_name,
             schedule_interval=timedelta(minutes=5),
             start_date=days_ago(1),
-            default_args=default_args
+            default_args={"owner": "airflow", "provide_context" : True}
         )
         dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table,
                                   dag=dag)
@@ -68,12 +68,6 @@ def insert_or_update_table(**context):
         logging.exception(context)
         logging.exception(e3)
 
-
-# dags_creator_task = PythonOperator(
-#     task_id="dags_creator_task",
-#     python_callable=generate_dags_for_queries,
-#     dag=dag
-# )
 
 with dag:
     t1 = PythonOperator(
