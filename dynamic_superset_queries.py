@@ -14,10 +14,11 @@ dag = DAG(
      schedule_interval="@once",
 )
 
-def create_or_update_table(**context):
+def create_or_update_table(da,**context):
     sql = context["drag_run"].conf["sql"]
     table_name = context["drag_run"].conf["table_name"]
-    printr('start clone table: '.table_name)
+    pprint(kwargs)
+    print(ds)
     src = MysqlHook(mysql_conn_id='openemis')
     dest = MysqlsHook(mysql_conn_id='analytics')
     src_conn = src.get_conn()
@@ -33,7 +34,7 @@ run_this =  PythonOperator(task_id="run_this", python_callable=create_or_update_
 
 bash_task = BashOperator(
     task_id="bash_task",
-    bash_command='echo "Table to runing',
     env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}','table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
+    provide_context=True, 
     dag=dag,
 )
