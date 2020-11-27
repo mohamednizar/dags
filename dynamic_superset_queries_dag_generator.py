@@ -63,7 +63,7 @@ def generate_dags_for_queries(**context):
         with dag:
             dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
                                       dag=dag)
-        globals()[dag_name] = dag
+        globals()[dag_id] = dag
         return dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
