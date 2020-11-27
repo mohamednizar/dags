@@ -75,7 +75,6 @@ def generate_dags_for_queries(**context):
             python_callable=insert_or_update_table,
             dag=new_dag)
         
-        globals()[dag_id] = new_dag
         return new_dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
