@@ -9,7 +9,7 @@ import logging
 
 dag = DAG(
     dag_id='dynamic_superset_queries',
-    default_args={"owner": "airflow"},
+    default_args={"owner": "airflow", "provide_context" : True},
     start_date=days_ago(1),
     schedule_interval="@once"
 )
