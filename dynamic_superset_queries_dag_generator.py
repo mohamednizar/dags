@@ -15,6 +15,15 @@ dag = DAG(
     schedule_interval="@once"
 )
 
+start_task = DummyOperator(
+    task_id='start_task',
+    dag=dag
+)
+
+end = DummyOperator(
+    task_id='end',
+    dag=dag)
+
 
 def insert_or_update_table(**context):
     """
@@ -63,6 +72,8 @@ def generate_dags_for_queries(**context):
         with new_dag:
             dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
                                       dag=new_dag)
+            start_task >> dag_task
+            dag_task >> end
         globals()[dag_id] = new_dag
         return new_dag
     except Exception as e3:
@@ -75,3 +86,5 @@ with dag:
     t1 = PythonOperator(
         task_id='generate_dags_for_queries',
         python_callable=generate_dags_for_queries)
+    start_task >> t1
+    t1 >> end
