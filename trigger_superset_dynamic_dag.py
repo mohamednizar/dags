@@ -13,7 +13,7 @@ dag = DAG(
 def trigger(context, dag_run_obj):
     dag_run_obj.payload = {
         "sql": context["dag_run"].conf["sql"],
-        "table_name": context["dag_run"].conf["extra_json"]["table_name"]
+        "table_name": context["dag_run"].conf["table_name"]
     }
     return dag_run_obj
 
