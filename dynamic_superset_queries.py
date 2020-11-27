@@ -14,8 +14,7 @@ dag = DAG(
     schedule_interval="@once",
 )
 
-
-def create_or_update_table(**kwargs):
+def create_or_update_table(ds, **kwargs):
     try:
         logging.info('trying the task')
         sql = kwargs["drag_run"].conf["sql"]
@@ -32,8 +31,7 @@ def create_or_update_table(**kwargs):
         dest.insert_rows(table=table_name, rows=cursor)
     except Exception as e3:
         logging.error('Dag failed , please refer the logs more details')
-        logging.exception(e3)
         logging.exception(kwargs)
-
-
+        logging.exception(e3)
+        
 run_this = PythonOperator(task_id="run_this", python_callable=create_or_update_table, dag=dag)
