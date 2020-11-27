@@ -1,5 +1,6 @@
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy_operator import DummyOperator
 from airflow.models import DAG
 from datetime import datetime, timedelta
 from airflow.operators.mysql_operator import MySqlOperator
@@ -7,14 +8,10 @@ from airflow.hooks.mysql_hook import MySqlHook
 from airflow.utils.dates import days_ago
 import logging
 
-default_args = {
-    "owner": "airflow",
-    "provide_context": True
-}
 
 dag = DAG(
     dag_id='dynamic_superset_queries_dag_generator',
-    default_args=default_args,
+    default_args={"owner": "airflow", "provide_context" : True},
     start_date=days_ago(1),
     schedule_interval="@once"
 )
@@ -33,9 +30,9 @@ def generate_dags_for_queries(**context):
             dag_name,
             schedule_interval=timedelta(minutes=5),
             start_date=days_ago(1),
-            default_args=default_args
+            default_args={"owner": "airflow", "provide_context" : True}
         )
-        dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table,
+        dag_task = PythonOperator(task_id="running_queries", python_callable=create_or_update_table,
                                   dag=dag)
         globals()[dag_name] = dag
         return dag
@@ -70,10 +67,9 @@ def insert_or_update_table(**context):
         logging.error('Table update is failed, please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
-        
 
-dags_creator_task = PythonOperator(
-    task_id="dags_creator_task",
-    python_callable=generate_dags_for_queries,
-    dag=dag
-)
+
+with dag:
+    t1 = PythonOperator(
+        task_id='generate_dags_for_queries',
+        python_callable=generate_dags_for_queries)
