@@ -16,19 +16,26 @@ dag = DAG(
 
 
 def create_or_update_table(**context):
+    """
+     Print the payload "message" passed to the DagRun conf attribute.
+    :param context: The execution context
+    :type context: dict
+    """
     try:
         logging.info('trying the task')
         sql = format(context["dag_run"].conf["sql"])
         table_name = format(context["dag_run"].conf["table_name"])
         logging.info('connecting to source')
         src = MySqlHook(mysql_conn_id='openemis')
+        truncate_query = "TRUNCATE tabel"
         logging.info('connecting to destination')
+        logging.info('SQL recived: '. sql)
+        logging.info('Table recived:' .table_name)
         dest = MySqlHook(mysql_conn_id='analytics')
         src_conn = src.get_conn()
         cursor = src_conn.cursor()
         dest_conn = dest.get_conn()
         cursor.execute(sql)
-        dest.truncate(table=table_name)
         dest.insert_rows(table=table_name, rows=cursor)
     except Exception as e3:
         logging.error('Dag failed , please refer the logs more details')
