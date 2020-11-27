@@ -32,7 +32,7 @@ def create_or_update_table(**context):
         dest.insert_rows(table=table_name, rows=cursor)
     except Exception as e3:
         logging.error('Dag failed , please refer the logs more details')
-        logging.exception(kwargs)
+        logging.exception(context)
         logging.exception(e3)
 
 
