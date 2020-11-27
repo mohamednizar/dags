@@ -12,18 +12,6 @@ default_args = {
     "provide_context": True
 }
 
-dag = DAG(
-    dag_id='dynamic_superset_queries_dag_generator',
-    default_args={"owner": "airflow", "provide_context" : True},
-    start_date=days_ago(1),
-    schedule_interval="@once"
-)
-
-process_creator_task = PythonOperator(
-        task_id="process_creator",
-        python_callable=generate_dags_for_queries,
-    )
-
 
 def generate_dags_for_queries(**context):
     table_name = format(context["dag_run"].conf["table_name"])
@@ -63,3 +51,16 @@ def insert_or_update_table(**context):
         logging.error('Dag failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
+
+
+dag = DAG(
+    dag_id='dynamic_superset_queries_dag_generator',
+    default_args={"owner": "airflow", "provide_context": True},
+    start_date=days_ago(1),
+    schedule_interval="@once"
+)
+
+process_creator_task = PythonOperator(
+    task_id="process_creator",
+    python_callable=generate_dags_for_queries,
+)
