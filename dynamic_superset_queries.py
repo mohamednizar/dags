@@ -1,3 +1,4 @@
+from airflow.operators.bash import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import DAG
 from datetime import datetime, timedelta
@@ -5,7 +6,6 @@ from airflow.operators.mysql_operator import MySqlOperator
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.utils.dates import days_ago
 import logging
-import os
 
 dag = DAG(
     dag_id='dynamic_superset_queries',
@@ -13,6 +13,7 @@ dag = DAG(
     start_date=days_ago(1),
     schedule_interval="@once",
 )
+
 
 def create_or_update_table(**context):
     try:
@@ -33,12 +34,14 @@ def create_or_update_table(**context):
         logging.error('Dag failed , please refer the logs more details')
         logging.exception(kwargs)
         logging.exception(e3)
-        
+
+
 run_this = PythonOperator(task_id="run_this", python_callable=create_or_update_table, dag=dag)
 
 bash_task = BashOperator(
     task_id="bash_task",
     bash_command='echo "start importing data: $table_name"',
-    env = {'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}' , 'table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
+    env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}',
+         'table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
     dag=dag,
 )
