@@ -12,6 +12,18 @@ default_args = {
     "provide_context": True
 }
 
+dag = DAG(
+    dag_id='dynamic_superset_queries_dag_generator',
+    default_args={"owner": "airflow", "provide_context" : True},
+    start_date=days_ago(1),
+    schedule_interval="@once"
+)
+
+process_creator_task = PythonOperator(
+        task_id="process_creator",
+        python_callable=generate_dags_for_queries,
+    )
+
 
 def generate_dags_for_queries(**context):
     table_name = format(context["dag_run"].conf["table_name"])
@@ -24,18 +36,6 @@ def generate_dags_for_queries(**context):
     )
     dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table, dag=dag)
     return dag
-
-
-with DAG('dynamic_superset_queries_dag_generator',
-         default_args=default_args,
-         start_date=days_ago(1),
-         schedule_interval='None',
-         catchup=False) as superset_queries_dags:
-
-    process_creator_task = PythonOperator(
-        task_id="process_creator",
-        python_callable=generate_dags_for_queries,
-    )
 
 
 def insert_or_update_table(**context):
