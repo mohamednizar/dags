@@ -13,11 +13,10 @@ dag = DAG(
      schedule_interval="@once",
 )
 
-def create_or_update_table(da,**context):
+def create_or_update_table(**context):
     sql = context["drag_run"].conf["sql"]
     table_name = context["drag_run"].conf["table_name"]
-    pprint(kwargs)
-    print(ds)
+    print('table name: '.table_name) 
     src = MysqlHook(mysql_conn_id='openemis')
     dest = MysqlsHook(mysql_conn_id='analytics')
     src_conn = src.get_conn()
