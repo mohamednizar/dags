@@ -14,11 +14,11 @@ dag = DAG(
     schedule_interval="@once",
 )
 
-def create_or_update_table(**kwargs):
+def create_or_update_table(**context):
     try:
         logging.info('trying the task')
-        sql = kwargs["drag_run"].conf["sql"]
-        table_name = kwargs["drag_run"].conf["table_name"]
+        sql = format(context["dag_run"].conf["sql"])
+        table_name = format(context["dag_run"].conf["table_name"])
         logging.info('connecting to source')
         src = MySqlHook(mysql_conn_id='openemis')
         logging.info('connecting to destination')
@@ -35,3 +35,10 @@ def create_or_update_table(**kwargs):
         logging.exception(e3)
         
 run_this = PythonOperator(task_id="run_this", python_callable=create_or_update_table, dag=dag)
+
+bash_task = BashOperator(
+    task_id="bash_task",
+    bash_command='echo "start importing data: $table_name"',
+    env = {'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}' , 'table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'}
+    dag=dag,
+)
