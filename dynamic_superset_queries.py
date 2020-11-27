@@ -29,8 +29,8 @@ def create_or_update_table(**context):
         src = MySqlHook(mysql_conn_id='openemis')
         truncate_query = "TRUNCATE tabel"
         logging.info('connecting to destination')
-        logging.info('SQL recived: '. sql)
-        logging.info('Table recived:' .table_name)
+        print("Remotely received value of {} for key=sql".format(context["dag_run"].conf["sql"]))
+        print("Remotely received value of {} for key=table_name".format(context["dag_run"].conf["table_name"]))
         dest = MySqlHook(mysql_conn_id='analytics')
         src_conn = src.get_conn()
         cursor = src_conn.cursor()
