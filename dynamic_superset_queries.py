@@ -11,8 +11,7 @@ dag = DAG(
     dag_id='dynamic_superset_queries',
     default_args={"owner": "airflow"},
     start_date=days_ago(1),
-    schedule_interval="@once",
-    provide_context=True
+    schedule_interval="@once"
 )
 
 
