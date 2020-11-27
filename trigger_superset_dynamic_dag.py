@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
 from airflow.utils.dates import days_ago
+import json
 
 dag = DAG(
     dag_id="trigger_superset_dynamic_dag",
@@ -13,7 +14,7 @@ dag = DAG(
 def trigger(context, dag_run_obj):
     dag_run_obj.payload = {
         "sql": context["dag_run"].conf["sql"],
-        "table_name": context["dag_run"].conf["table_name"]
+        "table_name": json.load(context["dag_run"].conf["extra_json"])["table_name"]
     }
     return dag_run_obj
 
