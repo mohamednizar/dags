@@ -60,10 +60,11 @@ def generate_dags_for_queries(**context):
             default_args={"owner": "airflow", "provide_context" : True}
         )
         task_name = f"running_queries_{table_name}"
-        dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
+        with dag:
+            dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
                                   dag=dag)
         globals()[dag_name] = dag
-        return [dag]
+        return dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
