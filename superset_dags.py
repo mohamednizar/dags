@@ -2,8 +2,8 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import DAG
 from datetime import datetime
-from airflow.operators.mysql_operator import MysqlOperator
-from airflow.hooks.mysql_hook import MysqlHook
+from airflow.operators.mysql_operator import MySqlOperator
+from airflow.hooks.mysql_hook import MySqlHook
 import os
 
 dag_params = {
