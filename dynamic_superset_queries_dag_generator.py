@@ -23,6 +23,7 @@ def generate_dags_for_queries(**context):
         default_args=default_args
     )
     dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table, dag=dag)
+    globals()[dag_name] = dag
     return dag
 
 
@@ -60,7 +61,7 @@ dag = DAG(
     schedule_interval="@once"
 )
 
-process_creator_task = PythonOperator(
-    task_id="process_creator",
+dags_creator_task = PythonOperator(
+    task_id="dags_creator_task",
     python_callable=generate_dags_for_queries,
 )
