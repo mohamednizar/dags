@@ -7,7 +7,6 @@ from airflow.hooks.mysql_hook import MySqlHook
 import os
 
 dag_params = {
-    'owner': 'airflow',
     'dag_id': 'superset_queries',
     'start_date':datetime(2020, 4, 20),
     'schedule_interval': timedelta(seconds=60)
