@@ -8,10 +8,9 @@ from airflow.hooks.mysql_hook import MySqlHook
 from airflow.utils.dates import days_ago
 import logging
 
-
 dag = DAG(
     dag_id='dynamic_superset_queries_dag_generator',
-    default_args={"owner": "airflow", "provide_context" : True},
+    default_args={"owner": "airflow", "provide_context": True},
     start_date=days_ago(1),
     schedule_interval="@once"
 )
@@ -54,15 +53,16 @@ def generate_dags_for_queries(**context):
         table_name = format(context["dag_run"].conf["table_name"])
         dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
         dag = DAG(
-            dag_name,
+            dag_id=dag_name,
             schedule_interval=timedelta(minutes=5),
             start_date=days_ago(1),
-            default_args={"owner": "airflow", "provide_context" : True}
+            default_args={"owner": "airflow", "provide_context": True},
+            catchup=False
         )
         task_name = f"running_queries_{table_name}"
         with dag:
             dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
-                                  dag=dag)
+                                      dag=dag)
         globals()[dag_name] = dag
         return dag
     except Exception as e3:
