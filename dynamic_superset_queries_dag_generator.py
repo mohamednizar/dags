@@ -21,6 +21,11 @@ dag = DAG(
 
 
 def generate_dags_for_queries(**context):
+    """
+    access the  payload params passed to the DagRun conf attribute.
+    :param context: The execution context
+    :type context: dict
+    """
     try:
         table_name = format(context["dag_run"].conf["table_name"])
         dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
@@ -35,6 +40,7 @@ def generate_dags_for_queries(**context):
         globals()[dag_name] = dag
         return dag
     except Exception as e3:
+        logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
 
@@ -61,10 +67,10 @@ def insert_or_update_table(**context):
         cursor.execute(sql)
         dest.insert_rows(table=table_name, rows=cursor, replace=True)
     except Exception as e3:
-        logging.error('Dag failed , please refer the logs more details')
+        logging.error('Table update is failed, please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
-
+        
 
 dags_creator_task = PythonOperator(
     task_id="dags_creator_task",
