@@ -7,17 +7,12 @@ from airflow.hooks.mysql_hook import MySqlHook
 from airflow.utils.dates import days_ago
 import logging
 
-args = {
-    'owner': 'airflow',
-    'start_date': airflow.utils.dates.days_ago(2),
-    'provide_context': True
-}
-
 dag = DAG(
     dag_id='dynamic_superset_queries',
     default_args={"owner": "airflow"},
     start_date=days_ago(1),
     schedule_interval="@once",
+    provide_context=True
 )
 
 
