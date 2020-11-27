@@ -51,9 +51,9 @@ def generate_dags_for_queries(**context):
     """
     try:
         table_name = format(context["dag_run"].conf["table_name"])
-        dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
+        dag_id = f"dynamic_superset_queries_dag_generator_{table_name}"
         dag = DAG(
-            dag_id=dag_name,
+            dag_id=dag_id,
             schedule_interval=timedelta(minutes=5),
             start_date=days_ago(1),
             default_args={"owner": "airflow", "provide_context": True},
