@@ -17,31 +17,6 @@ dag = DAG(
 )
 
 
-def generate_dags_for_queries(**context):
-    """
-    access the  payload params passed to the DagRun conf attribute.
-    :param context: The execution context
-    :type context: dict
-    """
-    try:
-        table_name = format(context["dag_run"].conf["table_name"])
-        dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
-        dag = DAG(
-            dag_name,
-            schedule_interval=timedelta(minutes=5),
-            start_date=days_ago(1),
-            default_args={"owner": "airflow", "provide_context" : True}
-        )
-        dag_task = PythonOperator(task_id="running_queries", python_callable=create_or_update_table,
-                                  dag=dag)
-        globals()[dag_name] = dag
-        return dag
-    except Exception as e3:
-        logging.error('Dag creation failed , please refer the logs more details')
-        logging.exception(context)
-        logging.exception(e3)
-
-
 def insert_or_update_table(**context):
     """
     access the  payload params passed to the DagRun conf attribute.
@@ -65,6 +40,32 @@ def insert_or_update_table(**context):
         dest.insert_rows(table=table_name, rows=cursor, replace=True)
     except Exception as e3:
         logging.error('Table update is failed, please refer the logs more details')
+        logging.exception(context)
+        logging.exception(e3)
+
+
+def generate_dags_for_queries(**context):
+    """
+    access the  payload params passed to the DagRun conf attribute.
+    :param context: The execution context
+    :type context: dict
+    """
+    try:
+        table_name = format(context["dag_run"].conf["table_name"])
+        dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
+        dag = DAG(
+            dag_name,
+            schedule_interval=timedelta(minutes=5),
+            start_date=days_ago(1),
+            default_args={"owner": "airflow", "provide_context" : True}
+        )
+        task_name = f"running_queries_{table_name}"
+        dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
+                                  dag=dag)
+        globals()[dag_name] = dag
+        return dag
+    except Exception as e3:
+        logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
 
