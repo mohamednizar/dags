@@ -33,6 +33,6 @@ run_this =  PythonOperator(task_id="run_this", python_callable=create_or_update_
 bash_task = BashOperator(
     task_id="bash_task",
     bash_command='echo "Table to run this: $table_name"',
-    env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}','table_name': '{{ dag_run.conf["extra_json"]["table_name"] if dag_run else "" }}'},
+    env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}','table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
     dag=dag,
 )
