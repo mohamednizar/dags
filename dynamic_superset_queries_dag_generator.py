@@ -14,23 +14,29 @@ default_args = {
 
 dag = DAG(
     dag_id='dynamic_superset_queries_dag_generator',
-    default_args={"owner": "airflow", "provide_context": True},
+    default_args=default_args,
     start_date=days_ago(1),
     schedule_interval="@once"
 )
 
+
 def generate_dags_for_queries(**context):
-    table_name = format(context["dag_run"].conf["table_name"])
-    dag_name = 'dynamic_superset_queries_dag_generator_{}'.table_name
-    dag = DAG(
-        dag_name,
-        schedule_interval=timedelta(minutes=5),
-        start_date=days_ago(1),
-        default_args=default_args
-    )
-    dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table, dag=dag)
-    globals()[dag_name] = dag
-    return dag
+    try:
+        table_name = format(context["dag_run"].conf["table_name"])
+        dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
+        dag = DAG(
+            dag_name,
+            schedule_interval=timedelta(minutes=5),
+            start_date=days_ago(1),
+            default_args=default_args
+        )
+        dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table,
+                                  dag=dag)
+        globals()[dag_name] = dag
+        return dag
+    except Exception as e3:
+        logging.exception(context)
+        logging.exception(e3)
 
 
 def insert_or_update_table(**context):
