@@ -59,6 +59,7 @@ def generate_dags_for_queries(**context):
     :type context: dict
     """
     try:
+        dags = []
         table_name = format(context["dag_run"].conf["table_name"])
         dag_id = f"dynamic_superset_queries_dag_generator_{table_name}"
         new_dag = DAG(
@@ -74,8 +75,11 @@ def generate_dags_for_queries(**context):
             task_id=task_name,
             python_callable=insert_or_update_table,
             dag=new_dag)
-        
-        return new_dag
+        dags.append(new_dag)
+
+        # Try to place the DAG into globals(), which doesn't work
+        globals()[dag_id] = new_dag
+        return dags
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
