@@ -14,7 +14,7 @@ dag = DAG(
     schedule_interval="@once",
 )
 
-def create_or_update_table(ds, **kwargs):
+def create_or_update_table(**kwargs):
     try:
         logging.info('trying the task')
         sql = kwargs["drag_run"].conf["sql"]
