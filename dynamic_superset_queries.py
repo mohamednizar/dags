@@ -11,7 +11,7 @@ dag = DAG(
      dag_id='dynamic_superset_queries',
      default_args={"owner": "airflow"},
      start_date=days_ago(1),
-     schedule_interval=timedelta(seconds=60),
+     schedule_interval="@once",
 )
 
 def create_or_update_table(**context):
