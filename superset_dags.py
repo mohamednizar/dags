@@ -14,7 +14,7 @@ dag_params = {
 }
 
 with DAG(**dag_params) as dag:
-    dag_id= dag_id . '_table{}_'.os.path.splitext(context['dag_run'].conf['extra_json.table_name']),
+    dag_id= dag_id . '_table{}'.os.path.splitext(context['dag_run'].conf['extra_json.table_name']),
     dag_name=dag_name,
     src = MysqlHook(mysql_conn_id='openemis')
     dest = MysqlsHook(mysql_conn_id='analytics')
