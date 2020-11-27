@@ -69,9 +69,12 @@ def generate_dags_for_queries(**context):
             catchup=False
         )
         task_name = f"running_queries_{table_name}"
-        with new_dag:
-            dag_task = PythonOperator(task_id=task_name, python_callable=insert_or_update_table,
-                                      dag=new_dag)
+
+        dag_task = PythonOperator(
+            task_id=task_name,
+            python_callable=insert_or_update_table,
+            dag=new_dag)
+        
         globals()[dag_id] = new_dag
         return new_dag
     except Exception as e3:
