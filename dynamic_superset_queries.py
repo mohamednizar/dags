@@ -32,7 +32,7 @@ def generate_dags_for_queries(**context):
             start_date=days_ago(1),
             default_args={"owner": "airflow", "provide_context" : True}
         )
-        dag_task = PythonOperator(task_id="running_queries_{}".table_name, python_callable=create_or_update_table,
+        dag_task = PythonOperator(task_id=f"running_queries_{table_name}", python_callable=create_or_update_table,
                                   dag=dag)
         globals()[dag_name] = dag
         return dag
