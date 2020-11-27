@@ -1,4 +1,3 @@
-from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.models import DAG
 from datetime import datetime , timedelta
@@ -32,9 +31,9 @@ def create_or_update_table(da,**context):
     
 run_this =  PythonOperator(task_id="run_this", python_callable=create_or_update_table, dag=dag)
 
-bash_task = BashOperator(
-    task_id="bash_task",
-    env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}','table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
-    provide_context=True, 
-    dag=dag,
-)
+# bash_task = BashOperator(
+#     task_id="bash_task",
+#     env={'sql': '{{ dag_run.conf["sql"] if dag_run else "" }}','table_name': '{{ dag_run.conf["table_name"] if dag_run else "" }}'},
+#     provide_context=True, 
+#     dag=dag,
+# )
