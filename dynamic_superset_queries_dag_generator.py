@@ -73,7 +73,6 @@ def generate_dags_for_queries(**context):
         with new_dag:
             dag_task = PythonOperator(
                 task_id=task_name,
-                dag_name=dag_name,
                 python_callable=insert_or_update_table)
 
         # Try to place the DAG into globals(), which doesn't work
