@@ -59,8 +59,8 @@ def generate_dags_for_queries(**context):
     :type context: dict
     """
     try:
-        table_name = format(context["dag_run"].conf["table_name"])
-        dag_name = f"dynamic_superset_queries_dag_generator_{table_name}"
+        table_name = format(context["dag_run"].conf["table_name"]).lower()
+        dag_name = f"dynamic_superset_queries_dag_{table_name}"
         new_dag = DAG(
             dag_name,
             default_args={"owner": "airflow", "provide_context": True},
@@ -74,6 +74,7 @@ def generate_dags_for_queries(**context):
             dag_task = PythonOperator(
                 task_id=task_name,
                 dag_name=dag_name,
+                provide_context=True,
                 python_callable=insert_or_update_table,
                 dag=new_dag)
 
