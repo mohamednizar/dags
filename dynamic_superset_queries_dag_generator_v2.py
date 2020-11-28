@@ -70,12 +70,17 @@ def generate_dags_for_queries(**context):
             dummy_start = DummyOperator(
                 task_id='dummy_start'
             )
+            
+            dummy_end = DummyOperator(
+                task_id='dummy_end'
+            )
             dag_task = PythonOperator(
                 task_id=task_name,
                 python_callable=insert_or_update_table,
                 provide_context=True
             )
             dummy_start >> dag_task
+            dag_task >> dummy_end
             logging.info('Task is:{}'.task_name)
             globals[dag_id] = new_dag
             return new_dag
@@ -92,4 +97,5 @@ with dag:
         python_callable=generate_dags_for_queries,
         dag=dag,
     )
-    START >> CREATE_DAG >> END
+    START >> CREATE_DAG 
+    CREATE_DAG >> END
