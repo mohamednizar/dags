@@ -85,11 +85,11 @@ def generate_dags_for_queries(**context):
         logging.exception(e3)
 
 
-CREATE_DAG = PythonOperator(
-    task_id="create_dag",
-    trigger_dag_id="generate_dags_for_queries",  # Ensure this equals the dag_id of the DAG to trigger
-    python_callable=generate_dags_for_queries,
-    dag=dag,
-)
-
-START >> CREATE_DAG >> END
+with dag:
+    CREATE_DAG = PythonOperator(
+        task_id="create_dag",
+        trigger_dag_id="generate_dags_for_queries",  # Ensure this equals the dag_id of the DAG to trigger
+        python_callable=generate_dags_for_queries,
+        dag=dag,
+    )
+    START >> CREATE_DAG >> END
