@@ -61,23 +61,17 @@ def generate_dags_for_queries(**context):
     try:
         table_name = format(context["dag_run"].conf["table_name"]).lower()
         dag_name = f"dynamic_superset_queries_dag_{table_name}"
-        new_dag = DAG(
+        with DAG(
             dag_name,
-            default_args={"owner": "airflow"},
-            start_date=days_ago(1),
+            default_args={"owner": "airflow", "start_date": days_ago(1)},
             schedule_interval=timedelta(minutes=5),
             catchup=False
-        )
-        task_name = f"running_queries_{table_name}"
-
-        with new_dag:
+        ) as new_dag:
+            task_name = f"running_queries_{table_name}"
             dag_task = PythonOperator(
                 task_id=task_name,
                 python_callable=insert_or_update_table)
-
-        # Try to place the DAG into globals(), which doesn't work
-        globals()[dag_name] = new_dag
-        return dag
+        return new_dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
