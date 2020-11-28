@@ -63,7 +63,7 @@ def generate_dags_for_queries(**context):
         dag_name = f"dynamic_superset_queries_dag_{table_name}"
         new_dag = DAG(
             dag_name,
-            default_args={"owner": "airflow", "provide_context": True},
+            default_args={"owner": "airflow"},
             start_date=days_ago(1),
             schedule_interval=timedelta(minutes=5),
             catchup=False
