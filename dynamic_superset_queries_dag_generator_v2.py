@@ -33,7 +33,7 @@ def generate_dags_for_queries(**context):
     """
     sql = format(context["dag_run"].conf["sql"])
     table_name = format(context["dag_run"].conf["table_name"])
-    
+
     def insert_or_update_table():
         try:
             logging.info('trying the task')
@@ -55,8 +55,8 @@ def generate_dags_for_queries(**context):
 
     try:
         table_name = format(context["dag_run"].conf["table_name"]).lower()
-        dag_name = "dynamic_superset_queries_dag_{table_name}"
-        logging.info('DAG is:{}'.dag_name)
+        dag_name = "dynamic_superset_queries_dag_{}".table_name
+        logging.info("DAG is:{}".dag_name)
         args = {"owner": "airflow", "start_date": days_ago(1)}
         with DAG(
             dag_name,
