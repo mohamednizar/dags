@@ -77,7 +77,6 @@ def generate_dags_for_queries(**context):
 
         # Try to place the DAG into globals(), which doesn't work
         globals()[dag_name] = new_dag
-        return new_dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
