@@ -34,12 +34,7 @@ def generate_dags_for_queries(**context):
     sql = format(context["dag_run"].conf["sql"])
     table_name = format(context["dag_run"].conf["table_name"])
 
-    def insert_or_update_table():
-        """
-        access the  payload params passed to the DagRun conf attribute.
-        :param context: The execution context
-        :type context: dict
-        """
+    def insert_or_update_table(**kwargs):
         try:
             logging.info('trying the task')
             logging.info('connecting to source')
@@ -61,10 +56,11 @@ def generate_dags_for_queries(**context):
     try:
         table_name = format(context["dag_run"].conf["table_name"]).lower()
         dag_name = f"dynamic_superset_queries_dag_{table_name}"
+        args = {"owner": "airflow", "start_date": days_ago(1)}
         with DAG(
             dag_name,
-            default_args={"owner": "airflow", "start_date": days_ago(1)},
-            schedule_interval=timedelta(minutes=5),
+            default_args=args,
+            schedule_interval='@hourly',
             catchup=False
         ) as new_dag:
             task_name = f"running_queries_{table_name}"
