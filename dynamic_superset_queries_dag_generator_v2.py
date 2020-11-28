@@ -51,12 +51,6 @@ def insert_or_update_table(**context):
         logging.exception(context)
         logging.exception(e3)
 
-def trigger(context, dag_run_obj):
-    dag_run_obj.payload = {
-        "sql": context["dag_run"].conf["sql"],
-        "table_name": context["dag_run"].conf["table_name"]
-    }
-    return dag_run_obj
 
 def generate_dags_for_queries(**context):
     """
@@ -90,4 +84,9 @@ def generate_dags_for_queries(**context):
         logging.exception(e3)
 
 
-globals()[dag_id] = generate_dags_for_queries(dict)
+globals()[dag_id] = PythonOperator(
+    task_id="create_dag",
+    trigger_dag_id="generate_dags_for_queries",  # Ensure this equals the dag_id of the DAG to trigger
+    python_callable=generate_dags_for_queries,
+    dag=dag,
+)
