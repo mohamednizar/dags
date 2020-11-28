@@ -15,8 +15,8 @@ dag = DAG(
     schedule_interval="@once"
 )
 
-start_task = DummyOperator(
-    task_id='start_task',
+start = DummyOperator(
+    task_id='start',
     dag=dag
 )
 
@@ -71,12 +71,21 @@ def generate_dags_for_queries(**context):
         task_name = f"running_queries_{table_name}"
 
         with new_dag:
+            star_task = DummyOperator(
+                task_id='start'
+            )
+            end_task = DummyOperator(
+                task_id='end'
+            )
             dag_task = PythonOperator(
                 task_id=task_name,
                 python_callable=insert_or_update_table)
-
+            logging.info('tasks created')
+            star_task >> dag_task
+            dag_task >> end_task
         # Try to place the DAG into globals(), which doesn't work
         globals()[dag_id] = new_dag
+        logging.info('assigned to globals')
         return new_dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
@@ -90,5 +99,5 @@ with dag:
         python_callable=generate_dags_for_queries,
         dag=dag
     )
-    start_task >> t1
+    start >> t1
     t1 >> end
