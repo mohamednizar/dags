@@ -15,12 +15,12 @@ dag = DAG(
     schedule_interval="@once"
 )
 
-start_task = DummyOperator(
+START = DummyOperator(
     task_id='start_task',
     dag=dag
 )
 
-end = DummyOperator(
+END = DummyOperator(
     task_id='end',
     dag=dag)
 
@@ -59,13 +59,13 @@ def generate_dags_for_queries(**context):
     :type context: dict
     """
     try:
-        table_name = format(context["dag_run"].conf["table_name"]).lower()
-        dag_name = "dynamic_superset_queries_dag_{}".table_name
+        table_name = format(context["dag_run"].conf["table_name"])
+        dag_id = f"dynamic_superset_queries_dag_{table_name}".upper()
         logging.info("DAG is:{}".dag_name)
         args = {"owner": "airflow", "start_date": days_ago(1)}
 
-        with DAG(dag_name, default_args=args, schedule_interval='@hourly', catchup=False ) as new_dag:
-            task_name = f"running_queries_{table_name}"
+        with DAG(dag_id, default_args=args, schedule_interval='@hourly', catchup=False) as new_dag:
+            task_name = f"running_queries_{table_name}".upper()
 
             dummy_start = DummyOperator(
                 task_id='dummy_start'
@@ -77,6 +77,7 @@ def generate_dags_for_queries(**context):
             )
             dummy_start >> dag_task
             logging.info('Task is:{}'.task_name)
+            globals[dag_id] = new_dag
             return new_dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
@@ -84,9 +85,11 @@ def generate_dags_for_queries(**context):
         logging.exception(e3)
 
 
-globals()[dag_id] = PythonOperator(
+CREATE_DAG = PythonOperator(
     task_id="create_dag",
     trigger_dag_id="generate_dags_for_queries",  # Ensure this equals the dag_id of the DAG to trigger
     python_callable=generate_dags_for_queries,
     dag=dag,
 )
+
+START >> CREATE_DAG >> END
