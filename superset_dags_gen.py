@@ -15,10 +15,11 @@ import logging
 superset_host = os.environ['SUPERSET_HOST']
 superset_username = os.environ['SUPERSET_USERNAME']
 superset_password = os.environ['SUPERSET_PASSWORD']
+superset_port = os.environ['SUPERSET_PORT']
 
 # set up session for auth
 s = requests.Session()
-base_url = f"http://{superset_host}/"
+base_url = f"http://{superset_host}:{superset_port}/"
 login_form = s.post(f"{base_url}/login")
 
 # get Cross-Site Request Forgery protection token
