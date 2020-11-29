@@ -2,6 +2,7 @@ import requests
 import os
 import json
 import pprint
+from bs4 import BeautifulSoup
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
