@@ -11,7 +11,7 @@ import logging
 dag = DAG(
     dag_id='dynamic_superset_queries_dag_generator_v3',
     default_args={"owner": "airflow", "provide_context": True},
-    start_date=days_ago(1),
+    start_date=None,
     schedule_interval="@once"
 )
 
@@ -64,7 +64,7 @@ def generate_dags_for_queries(**context):
         new_dag = DAG(
             dag_name,
             default_args={"owner": "airflow"},
-            start_date=days_ago(1),
+            start_date=None,
             schedule_interval=timedelta(minutes=5),
             catchup=False
         )
