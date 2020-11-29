@@ -50,14 +50,12 @@ def create_or_update_table(**context):
         logging.exception(context)
         logging.exception(e3)
 
-
-def dynamic_task(**context):
-    table_name = format(context["dag_run"].conf["table_name"])
-    task_name = f"create_or_update_{table_name}".lower()
-    create_dynamic_task = PythonOperator(task_id=task_name, python_callable=create_or_update_table, dag=dag)
-
+# def dynamic_task(**context):
+#     table_name = format(context["dag_run"].conf["table_name"])
+#     task_name = f"create_or_update_{table_name}".lower()
+#     create_dynamic_task = PythonOperator(task_id=task_name, python_callable=create_or_update_table, dag=dag)
 
 with dag:
-    run_this = PythonOperator(task_id="dynamic_task_create", python_callable=dynamic_task, dag=dag)
+    run_this = PythonOperator(task_id='create_or_update_table', python_callable=create_or_update_table, dag=dag)
     START >> run_this
     run_this >> END
