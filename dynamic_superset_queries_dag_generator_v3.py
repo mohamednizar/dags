@@ -84,11 +84,8 @@ def generate_dags_for_queries(**context):
         logging.exception(e3)
 
 
-with dag:
-    t1 = PythonOperator(
-        task_id='generate_dags_for_queries',
-        python_callable=generate_dags_for_queries,
-        dag=dag
-    )
-    start_task >> t1
-    t1 >> end
+create_dag = PythonOperator(
+    task_id='generate_dags_for_queries',
+    python_callable=generate_dags_for_queries,
+    dag=dag
+)
