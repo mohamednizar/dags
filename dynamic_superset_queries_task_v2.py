@@ -9,7 +9,7 @@ from airflow.utils.dates import days_ago
 import logging
 
 dag = DAG(
-    dag_id='dynamic_superset_queries_task',
+    dag_id='dynamic_superset_queries_task_v2',
     default_args={"owner": "airflow", "provide_context": True},
     start_date=days_ago(1),
     schedule_interval=timedelta(minutes=10)
