@@ -49,4 +49,5 @@ def dynamic_task(**context):
     return create_dynamic_task
 
 
-run_this = PythonOperator(task_id="dynamic_task_create", python_callable=dynamic_task, dag=dag)
+with dag:
+    run_this = PythonOperator(task_id="dynamic_task_create", python_callable=dynamic_task, dag=dag)
