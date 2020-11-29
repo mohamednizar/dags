@@ -9,7 +9,7 @@ from airflow.utils.dates import days_ago
 import logging
 
 dag = DAG(
-    dag_id='dynamic_superset_queries_task_v2',
+    dag_id='dynamic_superset_queries_task',
     default_args={"owner": "airflow", "provide_context": True},
     start_date=days_ago(1),
     schedule_interval=timedelta(minutes=10)
@@ -55,7 +55,6 @@ def dynamic_task(**context):
     table_name = format(context["dag_run"].conf["table_name"])
     task_name = f"create_or_update_{table_name}".lower()
     create_dynamic_task = PythonOperator(task_id=task_name, python_callable=create_or_update_table, dag=dag)
-    return create_dynamic_task
 
 
 with dag:
