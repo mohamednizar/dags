@@ -22,7 +22,7 @@ superset_port = os.environ['SUPERSET_PORT']
 s = requests.Session()
 base_url = f"http://{superset_host}:{superset_port}/"
 print(f"{base_url}login")
-login_form = s.get(f"{base_url}login")
+login_form = s.post(f"{base_url}login")
 
 
 
