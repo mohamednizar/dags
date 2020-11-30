@@ -25,11 +25,10 @@ login_form = s.post(f"{base_url}/login")
 
 # get Cross-Site Request Forgery protection token
 soup = BeautifulSoup(login_form.text, 'html.parser')
-#csrf_token = soup.find('input', {'id': 'csrf_token'})['value']
-logging.info(login_form)
+csrf_token = soup.find('input', {'id': 'csrf_token'})['value']
 
 # login the given session
-s.post(login_form, data=dict(username=superset_username, password=superset_password))
+s.post(login_form, data=dict(username=superset_username, password=superset_password, csrf_token=csrf_token))
 
 # fetch all saved queries
 saved_queries = s.get(f"{base_url}/savedqueryviewapi/api/read").text
@@ -48,7 +47,6 @@ START = DummyOperator(
 END = DummyOperator(
     task_id='END'
 )
-
 
 
 def insert_or_update_table(**kwargs):
