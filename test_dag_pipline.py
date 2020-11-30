@@ -42,4 +42,5 @@ class UseSupersetApi:
 superset_username = os.environ['SUPERSET_USERNAME']
 superset_password = os.environ['SUPERSET_PASSWORD']
 superset = UseSupersetApi(superset_username, superset_password)
-print(superset.get(url_path='/savedqueryviewapi/api/read'))
+saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
+print(saved_queries)
