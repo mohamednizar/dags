@@ -21,8 +21,9 @@ superset_port = os.environ['SUPERSET_PORT']
 # set up session for auth
 s = requests.Session()
 base_url = f"http://{superset_host}:{superset_port}/"
-login_form = s.post(f"{base_url}/login")
 print(login_form)
+login_form = s.post(f"{base_url}login")
+
 
 # get Cross-Site Request Forgery protection token
 soup = BeautifulSoup(login_form.text, 'html.parser')
@@ -32,5 +33,5 @@ soup = BeautifulSoup(login_form.text, 'html.parser')
 s.post(login_form, data=dict(username=superset_username, password=superset_password))
 
 # fetch all saved queries
-saved_queries = s.get(f"{base_url}/savedqueryviewapi/api/read").text
+saved_queries = s.get(f"{base_url}savedqueryviewapi/api/read").text
 
