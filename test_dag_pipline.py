@@ -21,8 +21,8 @@ superset_port = os.environ['SUPERSET_PORT']
 # set up session for auth
 s = requests.Session()
 base_url = f"http://{superset_host}:{superset_port}/"
-print(base_url)
-login_form = s.get(f"{base_url}login")
+print(f"{base_url}/login")
+login_form = s.get(f"{base_url}/login")
 
 
 
