@@ -21,8 +21,8 @@ superset_port = os.environ['SUPERSET_PORT']
 # set up session for auth
 s = requests.Session()
 base_url = f"http://{superset_host}:{superset_port}/"
-print(login_form)
 login_form = s.post(f"{base_url}login")
+print(login_form)
 
 
 # get Cross-Site Request Forgery protection token
