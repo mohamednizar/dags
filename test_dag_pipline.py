@@ -12,6 +12,7 @@ from airflow.operators.mysql_operator import MySqlOperator
 from airflow.hooks.mysql_hook import MySqlHook
 from airflow.utils.dates import days_ago
 import logging
+import pprint
 
 superset_host = os.environ['SUPERSET_HOST']
 superset_username = os.environ['SUPERSET_USERNAME']
@@ -20,9 +21,10 @@ superset_port = os.environ['SUPERSET_PORT']
 
 # set up session for auth
 s = requests.Session()
-base_url = f"https://{superset_host}:{superset_port}/"
+base_url = f"http://{superset_host}:{superset_port}/"
 print(f"{base_url}login")
 login_form = s.post(f"{base_url}login")
+pprint(login_form)
 
 
 
