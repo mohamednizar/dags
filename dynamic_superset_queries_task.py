@@ -128,10 +128,7 @@ def generate_dags_for_queries(dag_id, schedule,  default_args, saved_queries  ):
 superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)
-number_of_queries = len(saved_queries)
-print(number_of_queries)
-for n in range(0, number_of_queries):
-    saved_query = saved_queries[n]
+for saved_query in saved_queries:
     data = json.load(saved_query["extra_json"])
     table_name = data['schedule_info']['output_table']
     dag_id = f"saved_queries_update{table_name}".lower()
