@@ -128,17 +128,17 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
 superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
-print(saved_queries)
 for saved_query in saved_queries:
-    data = saved_query["extra_json"]
-    table_name = data['schedule_info']['output_table']
-    dag_id = f"saved_queries_update{table_name}".lower()
-    default_args = {'owner': 'airflow',
-                    'start_date': data['schedule_info']['start_date'],
-                    'end_date': data['schedule_info']['end_date'],
-                    }
-    schedule = timedelta(minutes=10)
-    if data is not None:
+    data = saved_query['extra_json']
+    if bool(data) is True:
+        table_name = data['schedule_info']['output_table']
+        dag_id = f"saved_queries_update{table_name}".lower()
+
+        default_args = {'owner': 'airflow',
+                        'start_date': data['schedule_info']['start_date'],
+                        'end_date': data['schedule_info']['end_date'],
+                        }
+        schedule = timedelta(minutes=10)
         globals[dag_id] = generate_dags_for_queries(dag_id,
                                                 schedule,
                                                 default_args,
