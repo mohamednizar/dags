@@ -122,11 +122,12 @@ superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
 for superset_query in saved_queries:
-    data = json.loads(superset_query['extra_json'])
-    data['sql'] = superset_query['sql']
+    data = superset_query['extra_json']
+    data.update({'sql': superset_query['sql']})
+    data = json.loads(data)
     if bool(data) is True:
         table_name = data['schedule_info']['output_table']
-        dag_id = f"saved_queries_update{table_name}".lower()
+        dag_id = f"saved_queries_update{table_name}".upper()
 
         default_args = {'owner': 'airflow',
                         'start_date': data['schedule_info']['start_date'],
