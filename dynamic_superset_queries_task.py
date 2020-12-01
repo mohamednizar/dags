@@ -107,9 +107,7 @@ def generate_dags_for_queries():
 
                     dag_task = PythonOperator(
                         task_id=task_name,
-                        python_callable=insert_or_update_table,
-                        op_kwargs=superset_query,
-                        dag=new_dag
+                        python_callable=insert_or_update_table
                     )
                     dags.append(new_dag)
                     logging.info(f"Task is:{task_name}")
