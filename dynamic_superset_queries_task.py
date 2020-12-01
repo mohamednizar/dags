@@ -69,7 +69,8 @@ END = DummyOperator(
 )
 
 
-def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
+def generate_dags_for_queries(dag_id, schedule, default_args):
+
     def insert_or_update_table(**args):
         try:
             json_data = json.loads(superset_query["extra_json"])
@@ -91,6 +92,10 @@ def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
             logging.exception(context)
             logging.exception(e3)
 
+    def hello_world_py(*args):
+        print('Hello World')
+        print('This is DAG: {}'.format(str(dag_id)))
+
     try:
         logging.info(f"DAG is:{dag_id}")
         new_dag = DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False)
@@ -107,7 +112,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
 
             dag_task = PythonOperator(
                 task_id=task_name,
-                python_callable=insert_or_update_table
+                python_callable=hello_world_py
             )
             logging.info(f"Task is:{task_name}")
         return new_dag
@@ -133,5 +138,4 @@ for superset_query in saved_queries:
         schedule = timedelta(minutes=10)
         globals[dag_id] = generate_dags_for_queries(dag_id,
                                                     schedule,
-                                                    default_args,
-                                                    superset_query)
+                                                    default_args)
