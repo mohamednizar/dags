@@ -69,10 +69,10 @@ END = DummyOperator(
 )
 
 
-def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
+def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
     def insert_or_update_table(**args):
         try:
-            json_data = json.loads(saved_query["extra_json"])
+            json_data = json.loads(superset_query["extra_json"])
             table_name = json_data['schedule_info']['table_name']
             sql = kwargs['sql']
             logging.info('trying the task')
@@ -117,13 +117,13 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
-        
+
 
 superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
-for saved_query in saved_queries:
-    data = json.loads(saved_query['extra_json'])
+for superset_query in saved_queries:
+    data = json.loads(superset_query['extra_json'])
     if bool(data) is True:
         table_name = data['schedule_info']['output_table']
         dag_id = f"saved_queries_update{table_name}".lower()
@@ -134,6 +134,6 @@ for saved_query in saved_queries:
                         }
         schedule = timedelta(minutes=10)
         globals[dag_id] = generate_dags_for_queries(dag_id,
-                                                schedule,
-                                                default_args,
-                                                saved_query)
+                                                    schedule,
+                                                    default_args,
+                                                    superset_query)
