@@ -76,7 +76,8 @@ def insert_or_update_table(**kwargs):
      :type context: dict
      """
     try:
-        table_name = kwargs['schedule_info']['table_name']
+        json_data = json.load(kwargs["extra_json"])
+        table_name = json_data['schedule_info']['table_name']
         sql = kwargs['sql']
         logging.info('trying the task')
         logging.info('connecting to source')
@@ -99,7 +100,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
     try:
         logging.info(f"DAG is:{dag_id}")
         with DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False) as new_dag:
-            task_name = f"running_queries_{table_name}".upper()
+            task_name = f"{dag_id}_update_table_task".upper()
 
             dummy_start = DummyOperator(
                 task_id='dummy_start'
@@ -117,7 +118,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
             )
             dummy_start >> dag_task
             dag_task >> dummy_end
-            logging.info('Task is:{}'.task_name)
+            logging.info(f"Task is:{task_name}")
             return new_dag
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
@@ -131,7 +132,6 @@ saved_queries = json.loads(saved_queries)["result"]
 for saved_query in saved_queries:
     data = json.loads(saved_query['extra_json'])
     if bool(data) is True:
-        print(data)
         table_name = data['schedule_info']['output_table']
         dag_id = f"saved_queries_update{table_name}".lower()
 
