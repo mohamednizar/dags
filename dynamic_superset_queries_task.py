@@ -108,8 +108,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
             dag_task = PythonOperator(
                 task_id=task_name,
                 python_callable=insert_or_update_table,
-                op_kwargs=saved_query,
-                provide_context=True
+                op_kwargs=saved_query
             )
             dummy_start >> dag_task
             dag_task >> dummy_end
