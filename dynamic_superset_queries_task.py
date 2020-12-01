@@ -96,7 +96,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
         logging.info(f"DAG is:{dag_id}")
         new_dag = DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False)
         with new_dag:
-            task_name = f"update_table_task".upper()
+            task_name = f"{dag_id}_update_table_task".upper()
 
             dummy_start = DummyOperator(
                 task_id='dummy_start'
@@ -109,7 +109,6 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
             dag_task = PythonOperator(
                 task_id=task_name,
                 python_callable=insert_or_update_table,
-                op_kwargs=saved_query,
                 provide_context=True
             )
             dummy_start >> dag_task
