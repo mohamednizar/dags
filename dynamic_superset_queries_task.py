@@ -129,6 +129,7 @@ superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)
 for saved_query in saved_queries:
+    pprint(saved_query)
     data = saved_query["extra_json"]
     table_name = data['schedule_info']['output_table']
     dag_id = f"saved_queries_update{table_name}".lower()
