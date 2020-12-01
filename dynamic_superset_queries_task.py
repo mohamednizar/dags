@@ -69,8 +69,7 @@ END = DummyOperator(
 )
 
 
-def generate_dags_for_queries(dag_id, schedule, default_args):
-
+def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
     def insert_or_update_table(**args):
         try:
             json_data = json.loads(superset_query["extra_json"])
@@ -92,10 +91,6 @@ def generate_dags_for_queries(dag_id, schedule, default_args):
             logging.exception(context)
             logging.exception(e3)
 
-    def hello_world_py(*args):
-        print('Hello World')
-        print('This is DAG: {}'.format(str(dag_id)))
-
     try:
         logging.info(f"DAG is:{dag_id}")
         new_dag = DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False)
@@ -112,7 +107,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args):
 
             dag_task = PythonOperator(
                 task_id=task_name,
-                python_callable=hello_world_py
+                python_callable=insert_or_update_table
             )
             logging.info(f"Task is:{task_name}")
         return new_dag
@@ -125,7 +120,9 @@ def generate_dags_for_queries(dag_id, schedule, default_args):
 superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
-for superset_query in saved_queries:
+number_of_queries = len(saved_queries)
+for n in (1, number_of_queries):
+    superset_query = saved_queries[n - 1]
     data = json.loads(superset_query['extra_json'])
     if bool(data) is True:
         table_name = data['schedule_info']['output_table']
@@ -136,6 +133,4 @@ for superset_query in saved_queries:
                         'end_date': data['schedule_info']['end_date'],
                         }
         schedule = timedelta(minutes=10)
-        globals[dag_id] = generate_dags_for_queries(dag_id,
-                                                    schedule,
-                                                    default_args)
+        globals[dag_id] = generate_dags_for_queries(dag_id, schedule, default_args, superset_query)
