@@ -76,7 +76,7 @@ def insert_or_update_table(**kwargs):
      :type context: dict
      """
     try:
-        json_data = json.load(kwargs["extra_json"])
+        json_data = json.loads(kwargs["extra_json"])
         table_name = json_data['schedule_info']['table_name']
         sql = kwargs['sql']
         logging.info('trying the task')
