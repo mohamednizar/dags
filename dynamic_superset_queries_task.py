@@ -69,34 +69,34 @@ END = DummyOperator(
 )
 
 
-def insert_or_update_table(**kwargs):
-    """
-     access the  payload params passed to the DagRun conf attribute.
-     :param context: The execution context
-     :type context: dict
-     """
-    try:
-        json_data = json.loads(kwargs["extra_json"])
-        table_name = json_data['schedule_info']['table_name']
-        sql = kwargs['sql']
-        logging.info('trying the task')
-        logging.info('connecting to source')
-        src = MySqlHook(mysql_conn_id=kwargs['schedule_info']['schema'])
-        logging.info(f"Remotely received sql of {sql}")
-        logging.info(f"Remotely received sql of {table_name}")
-        logging.info('connecting to destination')
-        dest = MySqlHook(mysql_conn_id='analytics')
-        src_conn = src.get_conn()
-        cursor = src_conn.cursor()
-        cursor.execute(sql)
-        dest.insert_rows(table=table_name, rows=cursor, replace=True)
-    except Exception as e3:
-        logging.error('Table update is failed, please refer the logs more details')
-        logging.exception(context)
-        logging.exception(e3)
-
-
 def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
+    
+    def insert_or_update_table(**kwargs):
+        """
+         access the  payload params passed to the DagRun conf attribute.
+         :param context: The execution context
+         :type context: dict
+         """
+        try:
+            json_data = json.loads(kwargs["extra_json"])
+            table_name = json_data['schedule_info']['table_name']
+            sql = kwargs['sql']
+            logging.info('trying the task')
+            logging.info('connecting to source')
+            src = MySqlHook(mysql_conn_id=kwargs['schedule_info']['schema'])
+            logging.info(f"Remotely received sql of {sql}")
+            logging.info(f"Remotely received sql of {table_name}")
+            logging.info('connecting to destination')
+            dest = MySqlHook(mysql_conn_id='analytics')
+            src_conn = src.get_conn()
+            cursor = src_conn.cursor()
+            cursor.execute(sql)
+            dest.insert_rows(table=table_name, rows=cursor, replace=True)
+        except Exception as e3:
+            logging.error('Table update is failed, please refer the logs more details')
+            logging.exception(context)
+            logging.exception(e3)
+
     try:
         logging.info(f"DAG is:{dag_id}")
         with DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False) as new_dag:
@@ -124,7 +124,6 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
-
 
 superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
