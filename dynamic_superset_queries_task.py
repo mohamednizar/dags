@@ -95,7 +95,7 @@ def insert_or_update_table(**kwargs):
         logging.exception(e3)
 
 
-def generate_dags_for_queries(dag_id, schedule,  default_args, saved_queries  ):
+def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
     try:
         logging.info(f"DAG is:{dag_id}")
         with DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False) as new_dag:
@@ -112,7 +112,7 @@ def generate_dags_for_queries(dag_id, schedule,  default_args, saved_queries  ):
             dag_task = PythonOperator(
                 task_id=task_name,
                 python_callable=insert_or_update_table,
-                op_kwargs=saved_queries,
+                op_kwargs=saved_query,
                 provide_context=True
             )
             dummy_start >> dag_task
@@ -129,7 +129,7 @@ superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)
 for saved_query in saved_queries:
-    data = json.load(saved_query["extra_json"])
+    data = saved_query["extra_json"]
     table_name = data['schedule_info']['output_table']
     dag_id = f"saved_queries_update{table_name}".lower()
 
@@ -141,4 +141,4 @@ for saved_query in saved_queries:
     globals[dag_id] = generate_dags_for_queries(dag_id,
                                                 schedule,
                                                 default_args,
-                                                saved_queries)
+                                                saved_query)
