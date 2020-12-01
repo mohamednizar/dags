@@ -69,12 +69,11 @@ END = DummyOperator(
 )
 
 
-def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
+def generate_dags_for_queries(dag_id, schedule, default_args, data):
     def insert_or_update_table(**args):
         try:
-            json_data = superset_query["extra_json"]
-            table_name = json_data['schedule_info']['table_name']
-            sql = kwargs['sql']
+            table_name = data['schedule_info']['table_name']
+            sql = data['sql']
             logging.info('trying the task')
             logging.info('connecting to source')
             src = MySqlHook(mysql_conn_id=kwargs['schedule_info']['schema'])
@@ -123,8 +122,8 @@ superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
 for superset_query in saved_queries:
-    superset_query = json.loads(superset_query)
-    data = superset_query['extra_json']
+    data = json.loads(superset_query['extra_json'])
+    data['sql'] = superset_query['sql']
     if bool(data) is True:
         table_name = data['schedule_info']['output_table']
         dag_id = f"saved_queries_update{table_name}".lower()
@@ -137,4 +136,4 @@ for superset_query in saved_queries:
         globals[dag_id] = generate_dags_for_queries(dag_id,
                                                     schedule,
                                                     default_args,
-                                                    superset_query)
+                                                    data)
