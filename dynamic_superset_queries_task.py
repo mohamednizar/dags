@@ -70,10 +70,9 @@ END = DummyOperator(
 
 
 def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
-    
-    def insert_or_update_table(**kwargs):
+    def insert_or_update_table(**args):
         try:
-            json_data = json.loads(kwargs["extra_json"])
+            json_data = json.loads(saved_query["extra_json"])
             table_name = json_data['schedule_info']['table_name']
             sql = kwargs['sql']
             logging.info('trying the task')
@@ -108,8 +107,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
 
             dag_task = PythonOperator(
                 task_id=task_name,
-                python_callable=insert_or_update_table,
-                provide_context=True
+                python_callable=insert_or_update_table
             )
             dummy_start >> dag_task
             dag_task >> dummy_end
@@ -119,6 +117,7 @@ def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
+        
 
 superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
