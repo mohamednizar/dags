@@ -72,7 +72,7 @@ END = DummyOperator(
 def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
     def insert_or_update_table(**args):
         try:
-            json_data = json.loads(superset_query["extra_json"])
+            json_data = superset_query["extra_json"]
             table_name = json_data['schedule_info']['table_name']
             sql = kwargs['sql']
             logging.info('trying the task')
@@ -123,7 +123,8 @@ superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
 for superset_query in saved_queries:
-    data = json.loads(superset_query['extra_json'])
+    superset_query = json.loads(superset_query)
+    data = superset_query['extra_json']
     if bool(data) is True:
         table_name = data['schedule_info']['output_table']
         dag_id = f"saved_queries_update{table_name}".lower()
