@@ -69,14 +69,15 @@ END = DummyOperator(
 )
 
 
-def generate_dags_for_queries(dag_id, schedule, default_args, data):
+def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
     def insert_or_update_table(**args):
         try:
-            table_name = data['schedule_info']['table_name']
-            sql = data['sql']
+            json_data = json.loads(superset_query["extra_json"])
+            table_name = json_data['schedule_info']['table_name']
+            sql = superset_query['sql']
             logging.info('trying the task')
             logging.info('connecting to source')
-            src = MySqlHook(mysql_conn_id=kwargs['schedule_info']['schema'])
+            src = MySqlHook(mysql_conn_id=superset_query['schema'])
             logging.info(f"Remotely received sql of {sql}")
             logging.info(f"Remotely received sql of {table_name}")
             logging.info('connecting to destination')
@@ -108,8 +109,6 @@ def generate_dags_for_queries(dag_id, schedule, default_args, data):
                 task_id=task_name,
                 python_callable=insert_or_update_table
             )
-            dummy_start >> dag_task
-            dag_task >> dummy_end
             logging.info(f"Task is:{task_name}")
         return new_dag
     except Exception as e3:
@@ -122,9 +121,7 @@ superset = UseSupersetApi(superset_username, superset_password)
 saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
 saved_queries = json.loads(saved_queries)["result"]
 for superset_query in saved_queries:
-    data = superset_query['extra_json']
-    data.update({'sql': superset_query['sql']})
-    data = json.loads(data)
+    data = json.loads(superset_query['extra_json'])
     if bool(data) is True:
         table_name = data['schedule_info']['output_table']
         dag_id = f"saved_queries_update{table_name}".upper()
@@ -137,4 +134,4 @@ for superset_query in saved_queries:
         globals[dag_id] = generate_dags_for_queries(dag_id,
                                                     schedule,
                                                     default_args,
-                                                    data)
+                                                    superset_query)
