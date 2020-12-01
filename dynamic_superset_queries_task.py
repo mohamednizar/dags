@@ -60,24 +60,20 @@ dag = DAG(
     schedule_interval=timedelta(minutes=10)
 )
 
-START = DummyOperator(
-    task_id='START'
-)
 
-END = DummyOperator(
-    task_id='END'
-)
+def generate_dags_for_queries():
+    superset = UseSupersetApi(superset_username, superset_password)
+    saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
+    saved_queries = json.loads(saved_queries)["result"]
 
-
-def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
-    def insert_or_update_table(**args):
+    def insert_or_update_table(**kwargs):
         try:
-            json_data = json.loads(superset_query["extra_json"])
+            json_data = json.loads(kwargs["extra_json"])
             table_name = json_data['schedule_info']['table_name']
-            sql = superset_query['sql']
+            sql = kwargs['sql']
             logging.info('trying the task')
             logging.info('connecting to source')
-            src = MySqlHook(mysql_conn_id=superset_query['schema'])
+            src = MySqlHook(mysql_conn_id=kwargs['schema'])
             logging.info(f"Remotely received sql of {sql}")
             logging.info(f"Remotely received sql of {table_name}")
             logging.info('connecting to destination')
@@ -92,45 +88,46 @@ def generate_dags_for_queries(dag_id, schedule, default_args, superset_query):
             logging.exception(e3)
 
     try:
-        logging.info(f"DAG is:{dag_id}")
-        new_dag = DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False)
-        with new_dag:
-            task_name = f"{dag_id}_update_table_task".upper()
+        dags = []
+        for superset_query in saved_queries:
+            data = json.loads(superset_query['extra_json'])
+            if bool(data) is True:
+                table_name = data['schedule_info']['output_table']
+                dag_id = f"saved_queries_{table_name}".upper()
 
-            dummy_start = DummyOperator(
-                task_id='dummy_start'
-            )
+                default_args = {'owner': 'airflow',
+                                'start_date': data['schedule_info']['start_date'],
+                                'end_date': data['schedule_info']['end_date'],
+                                }
+                schedule = timedelta(minutes=10)
+                new_dag = DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False)
+                logging.info(f"DAG is:{dag_id}")
+                with new_dag:
+                    task_name = f"{dag_id}_task".upper()
 
-            dummy_end = DummyOperator(
-                task_id='dummy_end'
-            )
-
-            dag_task = PythonOperator(
-                task_id=task_name,
-                python_callable=insert_or_update_table
-            )
-            logging.info(f"Task is:{task_name}")
-        return new_dag
+                    dag_task = PythonOperator(
+                        task_id=task_name,
+                        python_callable=insert_or_update_table,
+                        op_kwargs=superset_query,
+                        dag=new_dag
+                    )
+                    dags.append(new_dag)
+                    logging.info(f"Task is:{task_name}")
+                    globals()[dag_id] = new_dag
+        return dags
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
         logging.exception(context)
         logging.exception(e3)
 
 
-superset = UseSupersetApi(superset_username, superset_password)
-saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
-saved_queries = json.loads(saved_queries)["result"]
-number_of_queries = len(saved_queries)
-for n in (1, number_of_queries):
-    superset_query = saved_queries[n - 1]
-    data = json.loads(superset_query['extra_json'])
-    if bool(data) is True:
-        table_name = data['schedule_info']['output_table']
-        dag_id = f"saved_queries_update{table_name}".upper()
+start_task = DummyOperator(task_id="start")
+stop_task = DummyOperator(task_id="stop")
 
-        default_args = {'owner': 'airflow',
-                        'start_date': data['schedule_info']['start_date'],
-                        'end_date': data['schedule_info']['end_date'],
-                        }
-        schedule = timedelta(minutes=10)
-        generate_dags_for_queries(dag_id, schedule, default_args, superset_query)
+with dag:
+    process_creator_task = PythonOperator(
+        task_id="process_creator",
+        python_callable=generate_dags_for_queries,
+    )
+    stop_task >> process_creator_task
+    process_creator_task >> stop_task
