@@ -133,4 +133,4 @@ for n in (1, number_of_queries):
                         'end_date': data['schedule_info']['end_date'],
                         }
         schedule = timedelta(minutes=10)
-        globals[dag_id] = generate_dags_for_queries(dag_id, schedule, default_args, superset_query)
+        generate_dags_for_queries(dag_id, schedule, default_args, superset_query)
