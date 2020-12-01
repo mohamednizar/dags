@@ -72,11 +72,6 @@ END = DummyOperator(
 def generate_dags_for_queries(dag_id, schedule, default_args, saved_query):
     
     def insert_or_update_table(**kwargs):
-        """
-         access the  payload params passed to the DagRun conf attribute.
-         :param context: The execution context
-         :type context: dict
-         """
         try:
             json_data = json.loads(kwargs["extra_json"])
             table_name = json_data['schedule_info']['table_name']
