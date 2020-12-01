@@ -138,7 +138,8 @@ for saved_query in saved_queries:
                     'end_date': data['schedule_info']['end_date'],
                     }
     schedule = timedelta(minutes=10)
-    globals[dag_id] = generate_dags_for_queries(dag_id,
+    if data is not None:
+        globals[dag_id] = generate_dags_for_queries(dag_id,
                                                 schedule,
                                                 default_args,
                                                 saved_query)
