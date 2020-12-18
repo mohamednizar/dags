@@ -102,7 +102,7 @@ for data in saved_queries:
             dag_id = f"saved_queries_{table_name}".upper()
 
             default_args = {'owner': 'airflow',
-                            'start_date': json_data['schedule_info']['start_date']
+                            'start_date': datetime(2018, 1, 1)
                             }
 
             schedule = timedelta(minutes=10)
