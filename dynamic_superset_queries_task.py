@@ -88,8 +88,7 @@ def generate_dags_for_queries():
                     dag_id = f"saved_queries_{table_name}".upper()
 
                     default_args = {'owner': 'airflow',
-                                    'start_date': json_data['schedule_info']['start_date'],
-                                    'end_date': json_data['schedule_info']['end_date'],
+                                    'start_date': json_data['schedule_info']['start_date']
                                     }
                     schedule = timedelta(minutes=10)
                     new_dag = DAG(dag_id, default_args=default_args, schedule_interval=schedule, catchup=False)
