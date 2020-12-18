@@ -80,6 +80,7 @@ saved_queries = json.loads(saved_queries)["result"]
 
 for superset_query in saved_queries:
     data = json.loads(superset_query['extra_json'])
+    pprint.pformat(data)
     if data is not None:
         table_name = data['schedule_info']['output_table']
         dag_id = f"saved_queries_{table_name}".upper()
