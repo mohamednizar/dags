@@ -104,7 +104,5 @@ for data in saved_queries:
                     op_kwargs=data,
                     dag=new_dag
                 )
-
-                dags.append(new_dag)
                 logging.info(f"Task is:{task_name}")
                 globals()[dag_id] = new_dag
