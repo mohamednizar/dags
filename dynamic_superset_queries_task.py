@@ -90,7 +90,7 @@ def generate_dags_for_queries():
         dags = []
         for superset_query in saved_queries:
             data = json.loads(superset_query['extra_json'])
-            if 'schedule_info' in data or len(data['schedule_info']) > 0:
+            if len(data) > 0:
                 table_name = data['schedule_info']['output_table']
                 dag_id = f"saved_queries_{table_name}".upper()
 
