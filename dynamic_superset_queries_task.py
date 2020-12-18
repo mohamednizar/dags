@@ -90,7 +90,7 @@ def generate_dags_for_queries():
         dags = []
         for superset_query in saved_queries:
             data = json.loads(superset_query['extra_json'])
-            if bool(data) is True:
+            if 'schedule_info' in obj or len(data['schedule_info']) > 0:
                 table_name = data['schedule_info']['output_table']
                 dag_id = f"saved_queries_{table_name}".upper()
 
@@ -117,13 +117,3 @@ def generate_dags_for_queries():
         logging.exception(e3)
 
 generate_dags_for_queries()
-# start_task = DummyOperator(task_id="start")
-# stop_task = DummyOperator(task_id="stop")
-
-# with dag:
-#     process_creator_task = PythonOperator(
-#         task_id="process_creator",
-#         python_callable=generate_dags_for_queries,
-#     )
-#     stop_task >> process_creator_task
-#     process_creator_task >> stop_task
