@@ -65,7 +65,6 @@ def generate_dags_for_queries():
     superset = UseSupersetApi(superset_username, superset_password)
     saved_queries = superset.get(url_path='/savedqueryviewapi/api/read').text
     saved_queries = json.loads(saved_queries)["result"]
-    saved_queries = saved_queries[4]
 
     def insert_or_update_table(**kwargs):
         try:
@@ -108,7 +107,7 @@ def generate_dags_for_queries():
                     dag_task = PythonOperator(
                         task_id=task_name,
                         python_callable=insert_or_update_table,
-                        op_kwargs=data,
+                        op_kwargs=superset_query,
                         dag=new_dag
                     )
 
