@@ -53,12 +53,12 @@ class UseSupersetApi:
         return csrf_token
 
 
-dag = DAG(
-    dag_id='dynamic_superset_queries_task',
-    default_args={"owner": "airflow", "provide_context": True},
-    start_date=days_ago(1),
-    schedule_interval=timedelta(minutes=10)
-)
+# dag = DAG(
+#     dag_id='dynamic_superset_queries_task',
+#     default_args={"owner": "airflow", "provide_context": True},
+#     start_date=days_ago(1),
+#     schedule_interval=timedelta(minutes=10)
+# )
 
 
 def generate_dags_for_queries():
@@ -118,14 +118,14 @@ def generate_dags_for_queries():
         logging.exception(context)
         logging.exception(e3)
 
+generate_dags_for_queries()
+# start_task = DummyOperator(task_id="start")
+# stop_task = DummyOperator(task_id="stop")
 
-start_task = DummyOperator(task_id="start")
-stop_task = DummyOperator(task_id="stop")
-
-with dag:
-    process_creator_task = PythonOperator(
-        task_id="process_creator",
-        python_callable=generate_dags_for_queries,
-    )
-    stop_task >> process_creator_task
-    process_creator_task >> stop_task
+# with dag:
+#     process_creator_task = PythonOperator(
+#         task_id="process_creator",
+#         python_callable=generate_dags_for_queries,
+#     )
+#     stop_task >> process_creator_task
+#     process_creator_task >> stop_task
