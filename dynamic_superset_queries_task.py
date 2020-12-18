@@ -84,7 +84,6 @@ def generate_dags_for_queries():
             dest.insert_rows(table=table_name, rows=cursor, replace=True)
         except Exception as e3:
             logging.error('Table update is failed, please refer the logs more details')
-            logging.exception(context)
             logging.exception(e3)
 
     try:
@@ -115,7 +114,6 @@ def generate_dags_for_queries():
         return dags
     except Exception as e3:
         logging.error('Dag creation failed , please refer the logs more details')
-        logging.exception(kwargs)
         logging.exception(e3)
 
 generate_dags_for_queries()
