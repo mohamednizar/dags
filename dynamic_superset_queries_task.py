@@ -69,7 +69,7 @@ def generate_dags_for_queries():
     def insert_or_update_table(**kwargs):
         try:
             json_data = json.loads(kwargs["extra_json"])
-            table_name = json_data['schedule_info']['table_name']
+            table_name = json_data['schedule_info']['output_table']
             sql = kwargs['sql']
             logging.info('trying the task')
             logging.info('connecting to source')
@@ -90,7 +90,7 @@ def generate_dags_for_queries():
         dags = []
         for superset_query in saved_queries:
             data = json.loads(superset_query['extra_json'])
-            if len(data) > 0:
+            if 'schedule_info' in data or len(data['schedule_info']) > 0:
                 table_name = data['schedule_info']['output_table']
                 dag_id = f"saved_queries_{table_name}".upper()
 
@@ -106,8 +106,11 @@ def generate_dags_for_queries():
 
                     dag_task = PythonOperator(
                         task_id=task_name,
-                        python_callable=insert_or_update_table
+                        python_callable=insert_or_update_table,
+                        op_kwargs=data,
+                        dag=new_dag
                     )
+
                     dags.append(new_dag)
                     logging.info(f"Task is:{task_name}")
                     globals()[dag_id] = new_dag
