@@ -114,23 +114,4 @@ def generate_dags_for_queries():
         logging.exception(e3)
 
 
-dag = DAG(
-    dag_id='dynamic_superset_queries_task',
-    default_args={"owner": "airflow", "provide_context": True},
-    start_date=days_ago(1),
-    schedule_interval=timedelta(minutes=10)
-)
-
-
-START = DummyOperator(
-    task_id='START'
-)
-
-END = DummyOperator(
-    task_id='END'
-)
-
-with dag:
-    run_this = PythonOperator(task_id="generate_dags_for_queries", python_callable=generate_dags_for_queries, dag=dag)
-    START >> run_this
-    run_this >> END
+generate_dags_for_queries()
