@@ -89,7 +89,7 @@ def generate_dags_for_queries():
     try:
         dags = []
         for data in saved_queries:
-            if 'extra_json' in data and 'output_table' in data["extra_json"]:
+            if 'schedule_info' in data["extra_json"] and 'output_table' in data["extra_json"]['schedule_info']:
                 table_name = data['schedule_info']['output_table']
                 dag_id = f"saved_queries_{table_name}".upper()
 
